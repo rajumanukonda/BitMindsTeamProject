@@ -1,0 +1,18 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Table of Contents</title>
+  </head>
+  <body>
+    <h1>Table of Contents</h1>
+    {% for chapter in toc %}
+      <h2>{{ chapter.title }}</h2>
+      <ul>
+        {% for subsection in chapter.subsections %}
+          <li>{{ subsection }}</li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  </body>
+</html>
