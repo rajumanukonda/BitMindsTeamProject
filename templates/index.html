@@ -1,13 +1,54 @@
 <!-- index.html -->
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Course Search</title>
-</head>
-<body>
+  <head>
+    <title>AcademiAI</title>
+    <style>
+      body {
+        background-color: #f2f2f2;
+        text-align: center;
+      }
+
+      h1 {
+        color: #333;
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        margin: 0;
+      }
+
+      .search-bar {
+        display: inline-block;
+        margin-top: 20px;
+      }
+
+      .search-bar input[type="text"] {
+        border-radius: 30px;
+        padding: 10px 20px;
+        border: none;
+        outline: none;
+        font-size: 16px;
+        width: 300px;
+      }
+
+      .search-bar input[type="submit"] {
+        border-radius: 30px;
+        padding: 10px 20px;
+        border: none;
+        outline: none;
+        background-color: #333;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>AcademiAI</h1>
+    <div class="search-bar">
       <form action="/search" method="post">
         <input type="text" name="course_name" placeholder="Enter a course name" />
         <input type="submit" value="Search" />
       </form>
-</body>
+    </div>
+  </body>
 </html>
