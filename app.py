@@ -3,21 +3,27 @@ from flask import Flask, render_template, request
 # import requests
 # import langchain2.langchain.llms.vertexai
 # import langchain2.langchain.prompts.prompt
-from langchain import PromptTemplate, LLMChain
 import langchain
-from google.cloud import aiplatform
 from getpass import getpass
 from langchain.llms import OpenAI
 from langchain import PromptTemplate, LLMChain
 import os
+from jinja2 import Environment
+
+# import google.auth
+# from google.cloud import aiplatform
 
 OPENAI_API_KEY = ''
 
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
-app = Flask(__name__)
 
-import google.auth
+def jinja2_enumerate(iterable, start=0):
+    return enumerate(iterable, start=start)
+
+
+app = Flask(__name__)
+app.jinja_env.filters['enumerate'] = jinja2_enumerate
 
 
 @app.route('/')
