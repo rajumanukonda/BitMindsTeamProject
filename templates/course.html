@@ -1,18 +1,117 @@
-<!-- index.html -->
+<!-- course.html -->
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Table of Contents</title>
+    <title>AcademiAI - Course</title>
+    <style>
+      body {
+        background-color: #f2f2f2;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        font-family: Arial, sans-serif;
+      }
+
+      .sidebar {
+        width: 250px;
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .sidebar h2 {
+        color: #333;
+        margin-top: 0;
+      }
+
+      .chapter-link {
+        display: block;
+        color: #333;
+        margin-bottom: 10px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .subsections {
+        display: none;
+        margin-top: 10px;
+      }
+
+      .subsections ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .subsections li {
+        margin-bottom: 5px;
+      }
+
+      .subsections li a {
+        text-decoration: none;
+        color: #333;
+        cursor: pointer;
+      }
+
+      .content {
+        flex-grow: 1;
+        background-color: #fff;
+        padding: 20px;
+        margin-left: 20px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .content h3 {
+        color: #333;
+        margin-top: 0;
+      }
+    </style>
+    <script>
+      function toggleSubsections(chapterId) {
+        var subsections = document.getElementById(chapterId + '-subsections');
+        subsections.style.display = subsections.style.display === 'none' ? 'block' : 'none';
+      }
+
+      function showContent(contentId) {
+        var content = document.getElementById(contentId);
+        document.getElementById('dummy-content').innerHTML = content.innerHTML;
+      }
+    </script>
   </head>
   <body>
-    <h1>Table of Contents</h1>
+    <div class="sidebar">
+      <h2>Table of Contents</h2>
+      {% for chapter in toc %}
+        <div class="chapter-link" onclick="toggleSubsections('{{ loop.index }}')">{{ chapter.title }}</div>
+        <div id="{{ loop.index }}-subsections" class="subsections">
+          <ul>
+            {% set chapterIndex = loop.index %}
+            {% for subsection in chapter.subsections %}
+              <li>
+                <div onclick="showContent('{{ chapterIndex }}-{{ loop.index }}')">{{ subsection }}</div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="content">
+      <h3>Content Title</h3>
+      <div id="dummy-content">
+        <!-- Default dummy content -->
+        <p>Select a subsection from the table of contents to view its content.</p>
+      </div>
+    </div>
     {% for chapter in toc %}
-      <h2>{{ chapter.title }}</h2>
-      <ul>
-        {% for subsection in chapter.subsections %}
-          <li>{{ subsection }}</li>
-        {% endfor %}
-      </ul>
+      {% set chapterIndex = loop.index %}
+      {% for subsection in chapter.subsections %}
+        {% set subsectionIndex = loop.index0 %}
+        <div id="{{ chapterIndex }}-{{ subsectionIndex }}" style="display: none;">
+          <!-- Dummy content for each subsection -->
+          <h3>{{ subsection }}</h3>
+          <p>This is some dummy content for {{ subsection }}.</p>
+        </div>
+      {% endfor %}
     {% endfor %}
   </body>
 </html>
