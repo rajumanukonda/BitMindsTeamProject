@@ -74,8 +74,47 @@
 
       function showContent(contentId) {
         var content = document.getElementById(contentId);
-        document.getElementById('dummy-content').innerHTML = content.innerHTML;
+        var dummyContent = document.getElementById('dummy-content');
+        var contentTitle = document.getElementById('content-title');
+
+        // Show loading screen
+        dummyContent.innerHTML = '<div class="loading">Loading...</div>';
+
+        // Fetch content from the server
+        fetchContentFromServer(contentId)
+          .then(function (response) {
+            // Update the content on success
+            dummyContent.innerHTML = response;
+          })
+          .catch(function (error) {
+            // Handle errors
+            dummyContent.innerHTML = '<div class="error">Failed to fetch content.</div>';
+            console.error(error);
+          });
       }
+
+      function fetchContentFromServer(contentId) {
+        // Simulate a delay to show the loading screen
+        return new Promise(function (resolve, reject) {
+          setTimeout(function () {
+            // Make a fetch request to the server to fetch the content
+            fetch('/fetch_content?content_id=' + contentId)
+              .then(function (response) {
+                if (response.ok) {
+                  // Resolve with the response content
+                  resolve(response.text());
+                } else {
+                  // Reject with an error message
+                  reject('Error: ' + response.status);
+                }
+              })
+              .catch(function (error) {
+                // Reject with the error
+                reject(error);
+              });
+          }, 1000); // Adjust the delay as needed
+        });
+        }
     </script>
   </head>
   <body>
@@ -107,8 +146,8 @@
       {% for subsection in chapter.subsections %}
         {% set subsectionIndex = loop.index0 %}
         <div id="{{ chapterIndex }}-{{ subsectionIndex }}" style="display: none;">
-          <!-- Dummy content for each subsection -->
           <h3>{{ subsection }}</h3>
+          <!-- Dummy content for each subsection -->
           <p>This is some dummy content for {{ subsection }}.</p>
         </div>
       {% endfor %}
