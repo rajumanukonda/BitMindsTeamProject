@@ -7,15 +7,16 @@ from flask import Flask, render_template, request, jsonify
 import langchain
 # from google.cloud import aiplatform
 from getpass import getpass
-from langchain.llms import OpenAI
+from langchain.llms import OpenAI, VertexAI
 from langchain import PromptTemplate, LLMChain
 import os
 from jinja2 import Environment
 
 OPENAI_API_KEY = ''
+GOOGLE_APPLICATION_CREDENTIALS='/home/venkat/Projects/hackathon-virtual/round-device-391102-50b411b96a9e.json'
 
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
-
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_APPLICATION_CREDENTIALS
 
 def jinja2_enumerate(iterable, start=0):
     return enumerate(iterable, start=start)
@@ -68,7 +69,8 @@ def generate_content(topic):
 
     prompt = PromptTemplate(template=template, input_variables=["question"])
 
-    llm = OpenAI()
+    # llm = OpenAI()
+    llm = VertexAI()
     llm_chain = LLMChain(prompt=prompt, llm=llm)
 
     question = f"Explain me in detail about {topic}. Give one example"
@@ -89,7 +91,8 @@ def fetch_course_table_of_contents(course_name):
     # llm_chain = langchain2.langchain.LLMChain(prompt=prompt, llm=llm)
     prompt = PromptTemplate(template=template, input_variables=["question"])
 
-    llm = OpenAI()
+    # llm = OpenAI()
+    llm = VertexAI()
     llm_chain = LLMChain(prompt=prompt, llm=llm)
 
     question = f"I want to learn basics of {course_name}. Give me the table of contents with chapter names starting " \
@@ -139,5 +142,5 @@ def generate_course_contents(course_name):
 
 if __name__ == '__main__':
     # generate_course_contents("probability")
-    app.run()
+    app.run(debug=True)
     # credentials, project_id = google.auth.default()

@@ -1,0 +1,13 @@
+Flask==2.3.2
+google-api-core==2.11.1
+google-auth==2.21.0
+google-cloud-aiplatform==1.26.1
+google-cloud-bigquery==3.11.3
+google-cloud-core==2.3.2
+google-cloud-resource-manager==1.10.1
+google-cloud-storage==2.10.0
+langchain==0.0.218
+langchainplus-sdk==0.0.17
+openapi-schema-pydantic==1.2.4
+requests==2.31.0
+SQLAlchemy==2.0.17
