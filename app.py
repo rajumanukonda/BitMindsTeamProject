@@ -1,22 +1,17 @@
 # app.py
 from flask import Flask, render_template, request, jsonify
-# import requests
-# import langchain2.langchain.llms.vertexai
-# import langchain2.langchain.prompts.prompt
-# from langchain import PromptTemplate, LLMChain
-import langchain
-# from google.cloud import aiplatform
-from getpass import getpass
 from langchain.llms import OpenAI, VertexAI
 from langchain import PromptTemplate, LLMChain
-import os
-from jinja2 import Environment
+import os, re, json
+from langchain.output_parsers import StructuredOutputParser, ResponseSchema
+from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 
 OPENAI_API_KEY = ''
-GOOGLE_APPLICATION_CREDENTIALS='/home/venkat/Projects/hackathon-virtual/round-device-391102-50b411b96a9e.json'
+GOOGLE_APPLICATION_CREDENTIALS = 'utils/my_store.json'
 
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_APPLICATION_CREDENTIALS
+
 
 def jinja2_enumerate(iterable, start=0):
     return enumerate(iterable, start=start)
@@ -57,9 +52,67 @@ def fetch_content():
 
     # Use the language model to generate the content
     generated_content = generate_content(subsection)  # Replace with your language model generation logic
+    generated_quiz = generate_quiz(generated_content)
 
     # Return the generated content as the response
-    return generated_content
+    return generated_content + generated_quiz
+
+
+def generate_quiz(content):
+    response_schemas = [
+        ResponseSchema(name="question", description="A multiple choice question generated from input text snippet."),
+        ResponseSchema(name="options", description="Possible choices for the multiple choice question."),
+        ResponseSchema(name="answer", description="Correct answer for the question.")
+    ]
+
+    # The parser that will look for the LLM output in my schema and return it back to me
+    output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
+
+    # The format instructions that LangChain makes. Let's look at them
+    format_instructions = output_parser.get_format_instructions()
+    llm = VertexAI()
+    prompt = ChatPromptTemplate(
+        messages=[
+            HumanMessagePromptTemplate.from_template("""Given a text input, generate multiple choice questions 
+        from it along with the correct answer. 
+        \n{format_instructions}\n{user_prompt}""")
+        ],
+        input_variables=["user_prompt"],
+        partial_variables={"format_instructions": format_instructions}
+    )
+    user_query = prompt.format_prompt(user_prompt=content)
+    llm_chain = LLMChain(prompt=prompt, llm=llm)
+
+    user_query_output = llm_chain.run(user_query.to_messages())
+    markdown_text = user_query_output
+    return markdown_text if markdown_text is not None else '--> No Questions'
+
+    # # Remove the "json " prefix from the string
+    # data = re.sub(r'^json\s+', '', markdown_text)
+    #
+    # # Use regex pattern to match the JSON dictionary
+    # pattern = r'{.*}'
+    #
+    # # Extract the JSON dictionary from the string
+    # match = re.search(pattern, data)
+    #
+    # if match:
+    #     json_dict = match.group(0)
+    #     print("Extracted JSON Dictionary:")
+    #     json_string = json.dumps(json_dict)
+    #     return json_string
+    # else:
+    #     print("No JSON Dictionary found.")
+    #     return ''
+
+    # # Convert JSON string to  list
+    # question_list = json.loads(json_string)
+    #
+    # # Convert MCQ choices into lists
+    # for i in question_list:
+    #     i['options'] = i['options'].split('\n')
+    #
+    # return question_list
 
 
 def generate_content(topic):
@@ -84,11 +137,6 @@ def fetch_course_table_of_contents(course_name):
 
     Answer: Let's think step by step."""
 
-    # prompt = langchain2.langchain.prompts.prompt.PromptTemplate(template=template, input_variables=["question"])
-    #
-    # llm = langchain2.langchain.llms.vertexai.VertexAI()
-    #
-    # llm_chain = langchain2.langchain.LLMChain(prompt=prompt, llm=llm)
     prompt = PromptTemplate(template=template, input_variables=["question"])
 
     # llm = OpenAI()
