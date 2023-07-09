@@ -7,7 +7,7 @@ from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 
 OPENAI_API_KEY = ''
-GOOGLE_APPLICATION_CREDENTIALS = 'utils/my_store.json'
+GOOGLE_APPLICATION_CREDENTIALS='round-device-391102-50b411b96a9e.json'
 
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_APPLICATION_CREDENTIALS

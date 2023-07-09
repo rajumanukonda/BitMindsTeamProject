@@ -7,13 +7,16 @@
       body {
         background-color: #f2f2f2;
         display: flex;
-        align-items: flex-start;
+        /* align-items: flex-start; */
+        align-items: normal;
         justify-content: space-between;
         font-family: Arial, sans-serif;
       }
 
       .sidebar {
-        width: 250px;
+        /* width: 250px; */
+        min-width: 25%;
+        width: 25%;
         background-color: #fff;
         padding: 20px;
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
@@ -49,12 +52,13 @@
 
       .subsections li a {
         text-decoration: none;
-        color: #333;
+        color: #ff0000;
         cursor: pointer;
       }
 
       .content {
-        flex-grow: 1;
+        /* flex-grow: 1; */
+        width: 75%;
         background-color: #fff;
         padding: 20px;
         margin-left: 20px;
@@ -72,23 +76,46 @@
         subsections.style.display = subsections.style.display === 'none' ? 'block' : 'none';
       }
 
-      function showContent(contentId) {
-        var content = document.getElementById(contentId);
+      function showContent(contentId, contentTitle="Content Title") {
+        // var content = document.getElementById(contentId);
         var dummyContent = document.getElementById('dummy-content');
-        var contentTitle = document.getElementById('content-title');
+        var dummyContentTitle = document.getElementById('dummy-content-title');
+
+        var leftBraces=0, rightBraces=0, quizJSON, parsedContent, quizHTML;
 
         // Show loading screen
         dummyContent.innerHTML = '<div class="loading">Loading...</div>';
-
+        dummyContentTitle.innerHTML = contentTitle;
         // Fetch content from the server
         fetchContentFromServer(contentId)
           .then(function (response) {
+            if(response.includes("```json")){
+              // Find open Braces for Quiz question
+              leftBraces = response.indexOf("```json\n{");
+              // Skip ```json to identify closing brace
+              rightBraces = response.indexOf("\n}\n```");
+              quizJSON = JSON.parse(response.substring(leftBraces+7,rightBraces+2).replace(/\n/g,''));
+              console.log(quizJSON);
+              window.$quizJSON = quizJSON;
+            };
+            
             // Update the content on success
-            dummyContent.innerHTML = response;
+            // console.log(response);
+            window.$response = response;
+
+            if(quizJSON){
+              quizHTML = "<div id='quiz-container'><br/><p id='question'>"+quizJSON.question+"</p>";
+            }
+
+            parsedContent = response.substr(0, leftBraces) + response.substr(rightBraces+4); 
+            parsedContent = parsedContent.replace(/\r/g, '').replace(/\n/g, '<br>');
+            dummyContent.innerHTML = parsedContent;
+            dummyContentTitle.innerHTML = contentTitle;
           })
           .catch(function (error) {
             // Handle errors
             dummyContent.innerHTML = '<div class="error">Failed to fetch content.</div>';
+            dummyContentTitle.innerHTML = contentTitle;
             console.error(error);
           });
       }
@@ -127,7 +154,7 @@
             {% set chapterIndex = loop.index %}
             {% for subsection in chapter.subsections %}
               <li>
-                <div onclick="showContent('{{ chapterIndex }}-{{ loop.index - 1 }}')">{{ subsection }}</div>
+                <div onclick="showContent('{{ chapterIndex }}-{{ loop.index - 1 }}','{{subsection}}')">{{ subsection }}</div>
               </li>
             {% endfor %}
           </ul>
@@ -135,7 +162,7 @@
       {% endfor %}
     </div>
     <div class="content">
-      <h3>Content Title</h3>
+      <h3 id="dummy-content-title">Content Title</h3>
       <div id="dummy-content">
         <!-- Default dummy content -->
         <p>Select a subsection from the table of contents to view its content.</p>
