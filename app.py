@@ -49,13 +49,13 @@ def search():
     toc['toc'] = course_contents
     toc['course'] = course_name
     print(toc)
-    return render_template('course.html', **toc)
+    return render_template('course.html', course_name=course_name, **toc)
 
 
 @app.route('/fetch_content', methods=['GET'])
 def fetch_content():
     content_id = request.args.get('content_id')
-
+    print(content_id)
     # Extract the chapter index and subsection index from the content_id
     chapter_index, subsection_index = content_id.split('-')
 
