@@ -1,4 +1,4 @@
-var leftBraces, rightBraces, quizJSON, parsedContent, quizHTML, score=0, showQuiz=True;
+var leftBraces, rightBraces, quizJSON, parsedContent, quizHTML, score=0;
 
 function toggleSubsections(chapterId) {
   var subsections = document.getElementById(chapterId + '-subsections');
@@ -28,10 +28,11 @@ function showContent(contentId, contentTitle = "") {
   // Fetch content from the server
   fetchContentFromServer(contentId)
     .then(function (response) {
+      parsedContent = response;
       if (response.includes("```json")) {
-        leftBraces = response.indexOf("```json\n{");
-        rightBraces = response.indexOf("\n}\n```");
-        quizJSON = JSON.parse(response.substring(leftBraces + 7, rightBraces + 2).replace(/\n/g, ''));
+        leftBraces = parsedContent.indexOf("```json\n{");
+        rightBraces = parsedContent.indexOf("\n}\n```");
+        quizJSON = JSON.parse(parsedContent.substring(leftBraces + 7, rightBraces + 2).replace(/\n/g, ''));
         console.log(quizJSON);
         window.$quizJSON = quizJSON;
       }
