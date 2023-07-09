@@ -64,14 +64,14 @@ def fetch_content():
     subsection = chapter['subsections'][int(subsection_index)]
 
     # Use the language model to generate the content
-    generated_content = generate_content(subsection)  # Replace with your language model generation logic
-    generated_quiz = generate_quiz(generated_content)
+    generated_content = generate_content(subsection, chapter)  # Replace with your language model generation logic
+    generated_quiz = generate_quiz(generated_content, subsection, chapter)
 
     # Return the generated content as the response
     return generated_content + generated_quiz
 
 
-def generate_quiz(content):
+def generate_quiz(content, topic, chapter):
     response_schemas = [
         ResponseSchema(name="question", description="A multiple choice question generated from input text snippet."),
         ResponseSchema(name="options", description="Possible choices for the multiple choice question."),
@@ -85,6 +85,18 @@ def generate_quiz(content):
     format_instructions = output_parser.get_format_instructions()
     llm = VertexAI()
     prompt = ChatPromptTemplate(
+        # messages=[
+        #     HumanMessagePromptTemplate.from_template(
+        #         """Given a text input, generate one multiple choice question from it along with the correct answer. 
+        #         f"""You are a course content creator. Give me 1 multiple choice question on the topic of {topic} under {chapter} chapter for {toc['course']}.
+        #             \n{format_instructions}""")
+        # ],
+
+        # messages=[
+        #     HumanMessagePromptTemplate.from_template("""
+        #     You are a course content creator. Give me 1 multiple choice question on the topic of """ +  topic + """ under """ + chapter  + """ chapter for """ + toc['course'] + """ course. 
+        # \n{format_instructions}\n{user_prompt}""")
+        # ],
         messages=[
             HumanMessagePromptTemplate.from_template("""Given a text input, generate multiple choice questions 
         from it along with the correct answer. 
@@ -128,7 +140,7 @@ def generate_quiz(content):
     # return question_list
 
 
-def generate_content(topic):
+def generate_content(topic, chapter):
     template = """Question: {question}
 
     Answer: Let's think step by step."""
@@ -137,9 +149,24 @@ def generate_content(topic):
 
     # llm = OpenAI()
     llm = VertexAI()
-    llm_chain = LLMChain(prompt=prompt, llm=llm)
 
-    question = f"Explain me in detail about {topic}. Give one example"
+
+    llm = VertexAI(
+    model_name="text-bison@001",
+    max_output_tokens=1000,
+    temperature=0.1,
+    top_p=0.8,
+    top_k=40,
+    verbose=True,
+    )
+
+    llm_chain = LLMChain(prompt=prompt, llm=llm)
+    # question = f"Explain me in detail about {topic}. Give one example"
+
+    question = f"""
+        You are a course content creator. Give me content for the topic of {topic} under {chapter} for {toc['course']}. 
+        First explain about the topic in detailed manner then provide examples.
+    """
 
     ans = llm_chain.run(question)
     return ans
@@ -153,11 +180,23 @@ def fetch_course_table_of_contents(course_name):
     prompt = PromptTemplate(template=template, input_variables=["question"])
 
     # llm = OpenAI()
-    llm = VertexAI()
+    llm = VertexAI(
+        model_name="text-bison@001",
+        max_output_tokens=500,
+        temperature=0.1,
+        top_p=0.9,
+        top_k=40,
+        verbose=True,
+    )
+
     llm_chain = LLMChain(prompt=prompt, llm=llm)
 
-    question = f"I want to learn basics of {course_name}. Give me the table of contents with chapter names starting " \
-               f"with Chapter and sub sections starting with -"
+    # question = f"I want to learn basics of {course_name}. Give me the table of contents for 5 chapters with chapter names starting " \
+    #            f"with Chapter and sub sections starting with -"
+
+    question = f"""You are a course content creator. Create a table of contents for basics of {course_name} 
+    I want to have chapters and subsections. chapters should start with Chapter keyword and sub section should be with -. 
+    Overall, there should be 5 chapters."""
 
     ans = llm_chain.run(question)
     return ans
@@ -171,6 +210,7 @@ def parse_table_of_contents(file_path):
     current_chapter = None
 
     for line in lines:
+        line = line.strip("*").strip("#")
         line = line.strip()
         if line.startswith("Chapter"):
             current_chapter = {
