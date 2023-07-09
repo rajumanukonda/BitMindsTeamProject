@@ -1,3 +1,6 @@
 
 *.iml
 *.xml
+*.json
+*.pyc
+*.txt
