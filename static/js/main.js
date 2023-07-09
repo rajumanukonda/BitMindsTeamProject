@@ -34,8 +34,8 @@ function showContent(contentId, contentTitle = "") {
         rightBraces = parsedContent.indexOf("\n}\n```");
         quizJSON.set(contentId, JSON.parse(parsedContent.substring(leftBraces + 7, rightBraces + 2).replace(/\n/g, '')));
         showQuiz.set(contentId, true);
-        console.log(quizJSON);
-        console.log(showQuiz);
+        // console.log(quizJSON);
+        // console.log(showQuiz);
         window.$quizJSON = quizJSON;
         }
 
@@ -56,7 +56,7 @@ function showContent(contentId, contentTitle = "") {
         });
         quizHTML+="<input type='submit' onsubmit='javascript:validateQuiz();' value='Submit'></form>";
         
-        console.log(quizHTML);
+        // console.log(quizHTML);
         if(showQuiz.get(contentId)){
           parsedContent +=quizHTML;
         }
@@ -86,9 +86,10 @@ function validateQuiz(){
     score-=10;
     displayText = "Invalid answer -10 points!";
   }
-  console.log(score);
+  // console.log(score);
   alert(displayText +" Your current score: " + score);
   document.getElementById('quiz-container').style.visibility="hidden";
+  document.getElementById('score-level').innerText = "Level: Beginner | Score: " + score;
   showQuiz.set(contentId,false);
   return false;
 };

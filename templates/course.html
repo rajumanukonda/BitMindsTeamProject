@@ -10,6 +10,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <div class="navbar">
     <a class="active" href="/"><i class="fa fa-fw fa-home"></i>AcademiAI</a>
+    <span class="navbar-text" id="score-level">
+      Level: Beginner | Score: 0
+    </span>
   </div>
 <div class="container-fluid">
   <div class="row">
@@ -36,7 +39,7 @@
     </div>
     <div class="col-lg-9">
       <div class="content">
-        <h3 id="dummy-content-title">Hi There, Welcome to {{ course_name }}</h3>
+        <h3 id="dummy-content-title">Hi There, Welcome to {{ course_name[0]|upper}}{{course_name[1:] }} Course</h3>
         <div id="dummy-content">
          <!-- Default dummy content -->
           <p></p>
