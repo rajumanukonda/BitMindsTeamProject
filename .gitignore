@@ -5,3 +5,4 @@
 *.pyc
 *.txt
 node_modules
+.vercel

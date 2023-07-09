@@ -1,4 +1,4 @@
-var leftBraces, rightBraces, quizJSON, parsedContent, quizHTML, score=0;
+var leftBraces, rightBraces, quizJSON = new Map(), parsedContent, quizHTML, score=0, showQuiz = new Map();
 
 function toggleSubsections(chapterId) {
   var subsections = document.getElementById(chapterId + '-subsections');
@@ -32,28 +32,34 @@ function showContent(contentId, contentTitle = "") {
       if (response.includes("```json")) {
         leftBraces = parsedContent.indexOf("```json\n{");
         rightBraces = parsedContent.indexOf("\n}\n```");
-        quizJSON = JSON.parse(parsedContent.substring(leftBraces + 7, rightBraces + 2).replace(/\n/g, ''));
+        quizJSON.set(contentId, JSON.parse(parsedContent.substring(leftBraces + 7, rightBraces + 2).replace(/\n/g, '')));
+        showQuiz.set(contentId, true);
         console.log(quizJSON);
+        console.log(showQuiz);
         window.$quizJSON = quizJSON;
-      }
+        }
 
       // Update the content on success
       window.$response = response;
+      window.$parsedContent = parsedContent;
+      window.$contentId = contentId;
 
-      if(quizJSON !== undefined){
+      if(quizJSON.has(contentId)){
         if(leftBraces !== undefined && rightBraces!==undefined){
           parsedContent = response.substr(0, leftBraces) + response.substr(rightBraces+6);
         }
-        quizHTML = `<br/><br/><div id='quiz-container'><h6><u>Quiz</u></h6><p id='question'>${quizJSON.question}</p><form id="quiz-form" onsubmit='javascript:validateQuiz();return false;'>`;
-        quizJSON.options.forEach(function (item, index) {
+        quizHTML = `<br/><br/><div id='quiz-container' data-contentid='${contentId}'><h6><u>Quiz</u></h6><p id='question'>${quizJSON.get(contentId).question}</p><form id="quiz-form" onsubmit='javascript:validateQuiz();return false;'>`;
+        quizJSON.get(contentId).options.forEach(function (item, index) {
           // console.log(item, index);
           var temp = `<input type='radio' name='answer' value='${item}' id='${item}'><label for='${index}'>${item}</label><br>`;
           quizHTML += temp;
         });
         quizHTML+="<input type='submit' onsubmit='javascript:validateQuiz();' value='Submit'></form>";
+        
         console.log(quizHTML);
-        parsedContent +=quizHTML;
-        console.log(contentId);
+        if(showQuiz.get(contentId)){
+          parsedContent +=quizHTML;
+        }
       };
 
       // parsedContent = response.substr(0, leftBraces) + response.substr(rightBraces + 6);
@@ -70,7 +76,9 @@ function showContent(contentId, contentTitle = "") {
 }
 
 function validateQuiz(){
-  if(document.forms["quiz-form"].answer.value == quizJSON.answer){
+  // console.log("validateQuiz :: QID = " + document.getElementById('quiz-container').dataset.contentid);
+  var contentId = document.getElementById('quiz-container').dataset.contentid;
+  if(document.forms["quiz-form"].answer.value == quizJSON.get(contentId).answer){
     score+=10;
     displayText = "Valid answer +10 points!";
   }
@@ -81,6 +89,7 @@ function validateQuiz(){
   console.log(score);
   alert(displayText +" Your current score: " + score);
   document.getElementById('quiz-container').style.visibility="hidden";
+  showQuiz.set(contentId,false);
   return false;
 };
 
