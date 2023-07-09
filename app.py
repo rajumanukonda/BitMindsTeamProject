@@ -1,10 +1,12 @@
-# app.py
-from flask import Flask, render_template, request, jsonify
+
+from flask import Flask, render_template, request
+from flask_caching import Cache
 from langchain.llms import OpenAI, VertexAI
 from langchain import PromptTemplate, LLMChain
 import os, re, json
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
+
 
 OPENAI_API_KEY = ''
 GOOGLE_APPLICATION_CREDENTIALS='round-device-391102-50b411b96a9e.json'
@@ -19,6 +21,11 @@ def jinja2_enumerate(iterable, start=0):
 
 # Create the Flask app
 app = Flask(__name__)
+app.config['CACHE_TYPE'] = 'simple'
+cache = Cache(app)
+
+# Cache timeout in seconds (e.g., 1 hour)
+CACHE_TIMEOUT = 3600
 
 # Register the custom filter
 app.jinja_env.filters['enumerate'] = jinja2_enumerate
@@ -34,9 +41,14 @@ def index():
 @app.route('/search', methods=['POST'])
 def search():
     course_name = request.form['course_name']
-    course_contents = generate_course_contents(course_name)
+    course_contents = cache.get(course_name)
+    if course_contents is None:
+        course_contents = generate_course_contents(course_name)
+        cache.set(course_name, course_contents, timeout=CACHE_TIMEOUT)    
+
     toc['toc'] = course_contents
     toc['course'] = course_name
+    print(toc)
     return render_template('course.html', **toc)
 
 
