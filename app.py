@@ -36,6 +36,7 @@ def search():
     course_name = request.form['course_name']
     course_contents = generate_course_contents(course_name)
     toc['toc'] = course_contents
+    toc['course'] = course_name
     return render_template('course.html', **toc)
 
 
