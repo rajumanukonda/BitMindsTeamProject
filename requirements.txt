@@ -11,3 +11,4 @@ langchainplus-sdk==0.0.17
 openapi-schema-pydantic==1.2.4
 requests==2.31.0
 SQLAlchemy==2.0.17
+flask-caching==2.0.2

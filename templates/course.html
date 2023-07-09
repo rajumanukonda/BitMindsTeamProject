@@ -1,183 +1,55 @@
-<!-- course.html -->
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>AcademiAI - Course</title>
-    <style>
-      body {
-        background-color: #f2f2f2;
-        display: flex;
-        /* align-items: flex-start; */
-        align-items: normal;
-        justify-content: space-between;
-        font-family: Arial, sans-serif;
-      }
-
-      .sidebar {
-        /* width: 250px; */
-        min-width: 25%;
-        width: 25%;
-        background-color: #fff;
-        padding: 20px;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-      }
-
-      .sidebar h2 {
-        color: #333;
-        margin-top: 0;
-      }
-
-      .chapter-link {
-        display: block;
-        color: #333;
-        margin-bottom: 10px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-
-      .subsections {
-        display: none;
-        margin-top: 10px;
-      }
-
-      .subsections ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-      }
-
-      .subsections li {
-        margin-bottom: 5px;
-      }
-
-      .subsections li a {
-        text-decoration: none;
-        color: #ff0000;
-        cursor: pointer;
-      }
-
-      .content {
-        /* flex-grow: 1; */
-        width: 75%;
-        background-color: #fff;
-        padding: 20px;
-        margin-left: 20px;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-      }
-
-      .content h3 {
-        color: #333;
-        margin-top: 0;
-      }
-    </style>
-    <script>
-      function toggleSubsections(chapterId) {
-        var subsections = document.getElementById(chapterId + '-subsections');
-        subsections.style.display = subsections.style.display === 'none' ? 'block' : 'none';
-      }
-
-      function showContent(contentId, contentTitle="Content Title") {
-        // var content = document.getElementById(contentId);
-        var dummyContent = document.getElementById('dummy-content');
-        var dummyContentTitle = document.getElementById('dummy-content-title');
-
-        var leftBraces=0, rightBraces=0, quizJSON, parsedContent, quizHTML;
-
-        // Show loading screen
-        dummyContent.innerHTML = '<div class="loading">Loading...</div>';
-        dummyContentTitle.innerHTML = contentTitle;
-        // Fetch content from the server
-        fetchContentFromServer(contentId)
-          .then(function (response) {
-            if(response.includes("```json")){
-              // Find open Braces for Quiz question
-              leftBraces = response.indexOf("```json\n{");
-              // Skip ```json to identify closing brace
-              rightBraces = response.indexOf("\n}\n```");
-              quizJSON = JSON.parse(response.substring(leftBraces+7,rightBraces+2).replace(/\n/g,''));
-              console.log(quizJSON);
-              window.$quizJSON = quizJSON;
-            };
-            
-            // Update the content on success
-            // console.log(response);
-            window.$response = response;
-
-            if(quizJSON){
-              quizHTML = "<div id='quiz-container'><br/><p id='question'>"+quizJSON.question+"</p>";
-            }
-
-            parsedContent = response.substr(0, leftBraces) + response.substr(rightBraces+4); 
-            parsedContent = parsedContent.replace(/\r/g, '').replace(/\n/g, '<br>');
-            dummyContent.innerHTML = parsedContent;
-            dummyContentTitle.innerHTML = contentTitle;
-          })
-          .catch(function (error) {
-            // Handle errors
-            dummyContent.innerHTML = '<div class="error">Failed to fetch content.</div>';
-            dummyContentTitle.innerHTML = contentTitle;
-            console.error(error);
-          });
-      }
-
-      function fetchContentFromServer(contentId) {
-        // Simulate a delay to show the loading screen
-        return new Promise(function (resolve, reject) {
-          setTimeout(function () {
-            // Make a fetch request to the server to fetch the content
-            fetch('/fetch_content?content_id=' + contentId)
-              .then(function (response) {
-                if (response.ok) {
-                  // Resolve with the response content
-                  resolve(response.text());
-                } else {
-                  // Reject with an error message
-                  reject('Error: ' + response.status);
-                }
-              })
-              .catch(function (error) {
-                // Reject with the error
-                reject(error);
-              });
-          }, 1000); // Adjust the delay as needed
-        });
-        }
-    </script>
-  </head>
-  <body>
-    <div class="sidebar">
-      <h2>Table of Contents</h2>
-      {% for chapter in toc %}
+<head>
+  <title>AcademiAI - Course</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-3">
+      <div class="sidebar">
+        <h2>Table of Contents</h2>
+        {% for chapter in toc %}
         <div class="chapter-link" onclick="toggleSubsections('{{ loop.index }}')">{{ chapter.title }}</div>
         <div id="{{ loop.index }}-subsections" class="subsections">
           <ul>
             {% set chapterIndex = loop.index %}
             {% for subsection in chapter.subsections %}
-              <li>
-                <div onclick="showContent('{{ chapterIndex }}-{{ loop.index - 1 }}','{{subsection}}')">{{ subsection }}</div>
-              </li>
+            <li>
+              <a id="{{ chapterIndex }}-{{ loop.index - 1 }}" onclick="showContent('{{ chapterIndex }}-{{ loop.index - 1 }}','{{subsection}}')" class="nav-link">
+                <span class="icon">&#x2022;</span>
+                {{ subsection }}
+              </a>
+            </li>
             {% endfor %}
           </ul>
         </div>
-      {% endfor %}
-    </div>
-    <div class="content">
-      <h3 id="dummy-content-title">Content Title</h3>
-      <div id="dummy-content">
-        <!-- Default dummy content -->
-        <p>Select a subsection from the table of contents to view its content.</p>
+        {% endfor %}
       </div>
     </div>
-    {% for chapter in toc %}
-      {% set chapterIndex = loop.index %}
-      {% for subsection in chapter.subsections %}
-        {% set subsectionIndex = loop.index0 %}
-        <div id="{{ chapterIndex }}-{{ subsectionIndex }}" style="display: none;">
-          <h3>{{ subsection }}</h3>
-          <!-- Dummy content for each subsection -->
-          <p>This is some dummy content for {{ subsection }}.</p>
+    <div class="col-lg-9">
+      <div class="content">
+        <h3 id="dummy-content-title">Content Title</h3>
+        <div id="dummy-content">
+         <!-- Default dummy content -->
+          <p>Select a subsection from the table of contents to view its content.</p>
         </div>
-      {% endfor %}
-    {% endfor %}
-  </body>
+      </div>
+    </div>
+  </div>
+  <div class="row fixed-bottom">
+    <div class="col-lg-12">
+      <div class="nav-icons">
+        <a href="/" title="Home" onclick="showContent('1-0', 'Home')"><i class="bi bi-house-door-fill"></i>&#8962;</a>
+        <a href="#" title="Previous" onclick="showContent('{{ previousContentId }}', '{{ previousContentTitle }}')"><i class="bi bi-arrow-left"></i>&#8249;</a>
+        <a href="#" title="Next" onclick="showContent('{{ nextContentId }}', '{{ nextContentTitle }}')"><i class="bi bi-arrow-right">&#8250;</i></a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
