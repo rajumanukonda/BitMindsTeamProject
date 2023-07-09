@@ -14,6 +14,7 @@ GOOGLE_APPLICATION_CREDENTIALS='round-device-391102-50b411b96a9e.json'
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_APPLICATION_CREDENTIALS
 
+responseContents = ""
 
 def jinja2_enumerate(iterable, start=0):
     return enumerate(iterable, start=start)
@@ -202,9 +203,14 @@ def fetch_course_table_of_contents(course_name):
     return ans
 
 
-def parse_table_of_contents(file_path):
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
+def parse_table_of_contents():
+
+    # with open(file_path, 'r') as file:
+    #     lines = file.readlines()
+    global responseContents
+    lines = responseContents.split('\n')
+
+    # print("ContentSplit>>>>>",lines)
 
     chapters = []
     current_chapter = None
@@ -234,10 +240,14 @@ def generate_course_contents(course_name):
     # Generate the course contents with href links
     contents = fetch_course_table_of_contents(course_name)
 
-    with open('response.txt', 'w') as f:
-        f.write(contents)
+    global responseContents
+    responseContents = contents
+    # print(responseContents)
 
-    parsed_contents = parse_table_of_contents('response.txt')
+    # with open('response.txt', 'w') as f:
+    #     f.write(contents)
+
+    parsed_contents = parse_table_of_contents()
     return parsed_contents
 
 
