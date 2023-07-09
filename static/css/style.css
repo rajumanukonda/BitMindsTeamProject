@@ -39,14 +39,14 @@ body {
 
 .subsections li a {
   text-decoration: none;
-  color: #555;
+  color: #253430;
   cursor: pointer;
   display: flex;
   align-items: center;
 }
 
 .subsections li a:hover {
-  color: #333;
+  color: #252424;
   background-color: #f2f2f2;
 }
 
@@ -70,25 +70,38 @@ body {
   color: #333;
   margin-top: 0;
 }
-
-.nav-icons {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-}
-
-.nav-icons a {
-  text-decoration: none;
-  color: #333;
-  font-size: 20px;
-  margin: 0 5px;
-  padding: 5px;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
-
-.nav-icons a:hover {
-  color: #ff0000;
-  background-color: #f2f2f2;
-}
+/* Style the navigation bar */
+.navbar {
+    width: 100%;
+    background-color: #555;
+    overflow: auto;
+  }
+  
+  /* Navbar links */
+  .navbar a {
+    float: left;
+    text-align: center;
+    padding: 12px;
+    color: white;
+    text-decoration: none;
+    font-size: 17px;
+  }
+  
+  /* Navbar links on mouse-over */
+  .navbar a:hover {
+    background-color: #000;
+  }
+  
+  /* Current/active navbar link */
+  .active {
+    background-color: #6aa1e5;
+    border-radius: 0 40px 40px 0;
+  }
+  
+  /* Add responsiveness - will automatically display the navbar vertically instead of horizontally on screens less than 500 pixels */
+  @media screen and (max-width: 500px) {
+    .navbar a {
+      float: none;
+      display: block;
+    }
+  }

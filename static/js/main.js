@@ -3,7 +3,7 @@ function toggleSubsections(chapterId) {
   subsections.style.display = subsections.style.display === 'none' ? 'block' : 'none';
 }
 
-function showContent(contentId, contentTitle = "Content Title") {
+function showContent(contentId, contentTitle = "") {
   var dummyContent = document.getElementById('dummy-content');
   var dummyContentTitle = document.getElementById('dummy-content-title');
 
@@ -78,8 +78,3 @@ function fetchContentFromServer(contentId) {
     }, 1000); // Adjust the delay as needed
   });
 }
-
-// Call fetchContentFromServer with the first page content ID on page load
-window.onload = function () {
-  showContent('1-0', 'First Page Title');
-};
