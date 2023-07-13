@@ -9,7 +9,7 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 
 
 OPENAI_API_KEY = ''
-GOOGLE_APPLICATION_CREDENTIALS='round-device-391102-50b411b96a9e.json'
+GOOGLE_APPLICATION_CREDENTIALS='utils/my_store.json'
 
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_APPLICATION_CREDENTIALS
@@ -155,9 +155,9 @@ def generate_content(topic, chapter):
     llm = VertexAI(
     model_name="text-bison@001",
     max_output_tokens=1000,
-    temperature=0.1,
-    top_p=0.8,
-    top_k=40,
+    temperature=0,
+    top_p=1,
+    top_k=1,
     verbose=True,
     )
 
@@ -184,9 +184,9 @@ def fetch_course_table_of_contents(course_name):
     llm = VertexAI(
         model_name="text-bison@001",
         max_output_tokens=500,
-        temperature=0.1,
-        top_p=0.9,
-        top_k=40,
+        temperature=0.0,
+        top_p=1,
+        top_k=1,
         verbose=True,
     )
 
@@ -216,14 +216,20 @@ def parse_table_of_contents():
     current_chapter = None
 
     for line in lines:
-        line = line.strip("*").strip("#")
         line = line.strip()
+        line = line.strip("*").strip("#").strip("*")
+        line = line.strip()
+        if "Chapter" in line:
+            chap_index = line.index("Chapter")
+            line = line[chap_index:]
+        
         if line.startswith("Chapter"):
             current_chapter = {
                 'title': line,
                 'subsections': []
             }
             chapters.append(current_chapter)
+        
         elif line.startswith("-"):
             if current_chapter is not None:
                 subsection = line[1:].strip()
@@ -244,8 +250,8 @@ def generate_course_contents(course_name):
     responseContents = contents
     # print(responseContents)
 
-    # with open('response.txt', 'w') as f:
-    #     f.write(contents)
+    with open('response.txt', 'w') as f:
+        f.write(contents)
 
     parsed_contents = parse_table_of_contents()
     return parsed_contents
@@ -253,5 +259,5 @@ def generate_course_contents(course_name):
 
 if __name__ == '__main__':
     # generate_course_contents("probability")
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=False)
     # credentials, project_id = google.auth.default()
